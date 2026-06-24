@@ -24,9 +24,7 @@ jobs:
 
     - name: Build APK
       run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        yes | sdkmanager --licenses || true
+        yes | buildozer android licenses
         buildozer -v android debug
 
     - name: Upload APK
@@ -34,3 +32,4 @@ jobs:
       with:
         name: My-Accessible-Calculator
         path: bin/*.apk
+.apk
