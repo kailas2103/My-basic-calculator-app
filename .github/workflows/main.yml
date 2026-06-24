@@ -1,14 +1,36 @@
-steps:
-  - name: Checkout source
-    uses: actions/checkout@v4
+name: Build APK
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
 
-  - name: Build with Buildozer
-    uses: ArtemSBulgakov/buildozer-action@v1
-    with:
-      command: buildozer android debug
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
 
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: calculator-apk
-      path: bin/*.apk
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+        pip install --upgrade pip virtualenv cython==0.29.33
+        pip install git+https://github.com/kivy/buildozer.git@master
+
+    - name: Build APK
+      run: |
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        yes | sdkmanager --licenses || true
+        buildozer -v android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: My-Accessible-Calculator
+        path: bin/*.apk
